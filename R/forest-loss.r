@@ -1,13 +1,12 @@
-library(tidyverse)
+library(tidyr)
 
-fra <- read_csv("data/fao-fra.csv", col_types = "ccidddd")
-
+fra <- read.csv("data/fao-fra.csv")
+str(fra)
 # summarize by continent
 fra_region <- fra %>% 
   group_by(country) %>% 
   filter(sum(!is.na(forest)) == 5, sum(!is.na(nat_for)) == 5) %>% 
   group_by(region, year) %>% 
-  summarize_each(funs(sum), land_area, forest, nat_for) %>% 
   group_by(region) %>% 
   # annual forest loss
   mutate(change = 100 * (forest / lag(forest) - 1) / (year - lag(year)),
@@ -15,7 +14,7 @@ fra_region <- fra %>%
   ungroup %>% 
   mutate(region = reorder(factor(region), -change, FUN = max, na.rm = T))
 if (!dir.exists("output/")) dir.create("output/")
-write_csv(fra_region, "output/fao-fra-region.csv")
+write.csv(fra_region, "output/fao-fra-region.csv")
 
 # plot natural forest loss
 fra_region %>% 
